@@ -27,28 +27,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-
 app.get('/', util.isAuthenticated,
 function(req, res) {
-  //if hes signed in, just call res.render(index)
-  //otherwise send him to the login page
-  //res.redirect('/login');
   res.render('index');
 });
 
 app.get('/create', util.isAuthenticated,
 function(req, res) {
-  //is he signed in? if not, redirect to log in and verify himself
   res.render('index');
 });
 
-app.get('/links', util.isAuthenticated,
-function(req, res) {
-  //is he signed in? if not, redirect to log in and verify himself
-  Links.reset().fetch().then(function(links) {
-    res.send(200, links.models);
-  });
-});
+//=================================================================
 
 app.get('/login',
   function(request, response) {
@@ -71,6 +60,15 @@ app.post('/login',
           response.redirect('signup');
         }
       });
+});
+
+//===================================================================
+app.get('/links', util.isAuthenticated,
+function(req, res) {
+  //is he signed in? if not, redirect to log in and verify himself
+  Links.reset().fetch().then(function(links) {
+    res.send(200, links.models);
+  });
 });
 
 app.post('/links', 
@@ -104,6 +102,36 @@ function(req, res) {
     }
   });
 });
+
+//===================================================================
+
+// app.get('/signup',
+//   function(request, response) {
+//     response.render('index');
+// });
+
+app.post('/signup',
+  function(request, response) {
+
+  var username = request.body.username;
+  var password = request.body.password;
+
+  new User({ username: username }).fetch().then(function(found) {
+    if (found) {
+      console.log('username already exists');
+      response.send(404);
+    } else {
+        Users.create({
+          username: username,
+          password: password
+        })
+        .then(function(newUser) {
+          response.send(200, newUser);
+        });
+      }
+  });
+});
+
 
 /************************************************************/
 // Write your authentication routes here
