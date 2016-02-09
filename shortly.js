@@ -25,18 +25,35 @@ app.use(express.static(__dirname + '/public'));
 
 app.get('/', 
 function(req, res) {
+  //if hes signed in, just call res.render(index)
+  //otherwise send him to the login page
+  //res.redirect('/login');
   res.render('index');
 });
 
 app.get('/create', 
 function(req, res) {
+  //is he signed in? if not, redirect to log in and verify himself
   res.render('index');
 });
 
 app.get('/links', 
 function(req, res) {
+  //is he signed in? if not, redirect to log in and verify himself
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
+  });
+});
+
+app.get('/login',
+  function(request, response) {
+  Users.fetch().then(function(user) {
+    //does this user exist already in our database?
+      //if he does, then we can authenticate him with the hashed password
+    //if not, we will create a new account for him, and save info into DB
+    console.log('what is user?: ', user);
+    response.send(200, user.model);
+    //response.render('index');
   });
 });
 
@@ -85,6 +102,7 @@ function(req, res) {
 /************************************************************/
 
 app.get('/*', function(req, res) {
+  //console.log('get request is : ', req.params);
   new Link({ code: req.params[0] }).fetch().then(function(link) {
     if (!link) {
       res.redirect('/');
