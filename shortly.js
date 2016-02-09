@@ -41,7 +41,7 @@ function(req, res) {
 
 app.get('/login',
   function(request, response) {
-    response.render('index');
+    response.render('login');
 });
 
 app.post('/login',
@@ -105,10 +105,10 @@ function(req, res) {
 
 //===================================================================
 
-// app.get('/signup',
-//   function(request, response) {
-//     response.render('index');
-// });
+app.get('/signup',
+  function(request, response) {
+    response.render('signup');
+});
 
 app.post('/signup',
   function(request, response) {
@@ -119,7 +119,7 @@ app.post('/signup',
   new User({ username: username }).fetch().then(function(found) {
     if (found) {
       console.log('username already exists');
-      response.send(404);
+      response.redirect('/login');
     } else {
         Users.create({
           username: username,
@@ -130,6 +130,8 @@ app.post('/signup',
           response.send(200, newUser);
         });
       }
+     //response.redirect('index'); 
+  //response.render('index');
   });
 });
 
