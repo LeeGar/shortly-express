@@ -22,11 +22,11 @@ var User = db.Model.extend({
             return next(error);
           }
           model.attributes.password = hash;
-          
         });
       });
     });
   }
 });
+
 
 module.exports = User;

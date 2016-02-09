@@ -2,7 +2,8 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
-
+var session = require('express-session');
+var cookieParser = require('cookie-parser');
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -13,9 +14,12 @@ var Click = require('./app/models/click');
 
 var app = express();
 
+
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(partials());
+app.use(cookieParser('cookiez'));
+app.use(session());
 // Parse JSON (uniform resource locators)
 app.use(bodyParser.json());
 // Parse forms (signup/login)
@@ -23,7 +27,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-app.get('/', 
+
+app.get('/', util.isAuthenticated,
 function(req, res) {
   //if hes signed in, just call res.render(index)
   //otherwise send him to the login page
@@ -31,13 +36,13 @@ function(req, res) {
   res.render('index');
 });
 
-app.get('/create', 
+app.get('/create', util.isAuthenticated,
 function(req, res) {
   //is he signed in? if not, redirect to log in and verify himself
   res.render('index');
 });
 
-app.get('/links', 
+app.get('/links', util.isAuthenticated,
 function(req, res) {
   //is he signed in? if not, redirect to log in and verify himself
   Links.reset().fetch().then(function(links) {
@@ -47,14 +52,25 @@ function(req, res) {
 
 app.get('/login',
   function(request, response) {
-  Users.fetch().then(function(user) {
-    //does this user exist already in our database?
-      //if he does, then we can authenticate him with the hashed password
-    //if not, we will create a new account for him, and save info into DB
-    console.log('what is user?: ', user);
-    response.send(200, user.model);
-    //response.render('index');
-  });
+    response.render('index');
+});
+
+app.post('/login',
+  function(request, response) {
+
+    var username = request.body.username;
+    var password = request.body.password;
+
+      new User({username: username}).fetch().then(function(found) {
+        if (found) {
+          request.session.regenerate(function () {
+            request.session.user = username;
+            response.redirect('/');
+          });
+        } else {
+          response.redirect('signup');
+        }
+      });
 });
 
 app.post('/links', 
