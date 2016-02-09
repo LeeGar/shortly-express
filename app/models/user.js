@@ -11,7 +11,6 @@ var User = db.Model.extend({
   },
   initialize: function () {
     this.on('creating', function(model, attributes, options) {
-      // console.log('what is attributes through models: ', model.attributes);
       var salt = bcrypt.genSaltSync(10);
       var hash = bcrypt.hashSync(model.attributes.password, salt);
       model.set('salt', salt);

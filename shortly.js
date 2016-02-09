@@ -4,6 +4,7 @@ var partials = require('express-partials');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
+var bcrypt = require('bcrypt-nodejs');
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -50,12 +51,18 @@ app.post('/login',
     var username = request.body.username;
     var password = request.body.password;
 
-      new User({username: username}).fetch().then(function(found) {
-        if (found) {
-          request.session.regenerate(function () {
-            request.session.user = username;
-            response.redirect('/');
-          });
+      new User({username: username}).fetch().then(function(user) {
+        if (user) {
+          bcrypt.compare(password, user.get('password'), function(error, match){
+            if (match) {
+              request.session.regenerate(function () {
+                request.session.user = username;
+                response.redirect('/');
+              });
+            } else {
+              response.redirect('/login');
+            }
+        });
         } else {
           response.redirect('/login');
         }
@@ -89,7 +96,6 @@ function(req, res) {
           console.log('Error reading URL heading: ', err);
           return res.send(404);
         }
-
         Links.create({
           url: uri,
           title: title,
@@ -111,7 +117,7 @@ app.get('/signup',
 });
 
 app.post('/signup',
-  function(request, response) {
+  function(request, response, next) {
 
   var username = request.body.username;
   var password = request.body.password;
@@ -119,16 +125,15 @@ app.post('/signup',
   new User({ username: username }).fetch().then(function(found) {
     if (found) {
       console.log('username already exists');
-      response.redirect('/signup');
+      response.render("signup");
     } else {
         Users.create({
           username: username,
           password: password
         })
         .then(function(newUser) {
-          console.log('this is the new', newUser);
           response.setHeader('Location', '/');
-          response.send(200, newUser);
+          response.redirect('/');
         });
       }
   });
