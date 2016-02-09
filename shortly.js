@@ -134,6 +134,22 @@ app.post('/signup',
   });
 });
 
+//===================================================================
+
+app.get('/logout',
+  function(request, response) {
+    request.session.destroy(function(err) {
+    response.render("login");
+    });
+});
+
+app.post('/logout',
+  function(request, response) {
+    request.session.destroy(function(err) {
+    response.render("login");
+    });
+});
+
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
