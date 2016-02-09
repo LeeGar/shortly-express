@@ -119,27 +119,27 @@ app.post('/signup',
   new User({ username: username }).fetch().then(function(found) {
     if (found) {
       console.log('username already exists');
-      response.redirect('/login');
+      response.redirect('/signup');
     } else {
         Users.create({
           username: username,
           password: password
         })
         .then(function(newUser) {
+          console.log('this is the new', newUser);
           response.setHeader('Location', '/');
           response.send(200, newUser);
         });
       }
-     //response.redirect('index'); 
-  //response.render('index');
   });
 });
-
 
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
-
+//authentication route is found in utils.isAuthenticated
+//it will check if the request.session (aka session cookie), exists w/ the user
+//otherwise it will force them to login
 
 
 /************************************************************/
