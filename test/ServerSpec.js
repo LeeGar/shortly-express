@@ -279,6 +279,7 @@ describe('', function() {
       };
 
       request(options, function(error, res, body) {
+        console.log('res headers are :', res.headers);
         expect(res.headers.location).to.equal('/');
         done();
       });
@@ -286,7 +287,7 @@ describe('', function() {
 
   }); // 'Account Creation'
 
-  xdescribe('Account Login:', function() {
+  describe('Account Login:', function() {
 
     var requestWithSession = request.defaults({jar: true});
 

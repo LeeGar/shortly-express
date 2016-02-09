@@ -57,7 +57,7 @@ app.post('/login',
             response.redirect('/');
           });
         } else {
-          response.redirect('signup');
+          response.redirect('/login');
         }
       });
 });
@@ -126,6 +126,7 @@ app.post('/signup',
           password: password
         })
         .then(function(newUser) {
+          response.setHeader('Location', '/');
           response.send(200, newUser);
         });
       }
